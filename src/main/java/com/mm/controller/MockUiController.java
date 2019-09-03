@@ -21,7 +21,6 @@ import com.mm.service.MockUiService;
 @RequestMapping("/api/mockui")
 public class MockUiController {
 
-	private static final Logger log = LoggerFactory.getLogger(MockUiController.class);
 	
 	@Autowired
 	private MockUiService mockUiService;
@@ -40,7 +39,7 @@ public class MockUiController {
 	public  ResponseEntity<ResponseBean> dummyLitty(@RequestParam Map<String, String> requestParam){
 		
 		
-		log.info("Initial {} and Data {} ", requestParam.get("initial"), requestParam.get("data"));
+		System.out.println("Initial "+ requestParam.get("initial")+" and Data  "+requestParam.get("data"));
 		
 		
 		return new ResponseEntity<ResponseBean>(new ResponseBean(true, requestParam.get("data")), HttpStatus.OK);

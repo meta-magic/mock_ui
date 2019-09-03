@@ -4,11 +4,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -26,7 +23,6 @@ import org.springframework.web.context.annotation.RequestScope;
 @RequestScope
 public class MockUiServiceImpl implements MockUiService {
 
-	private static final Logger log = LoggerFactory.getLogger(MockUiServiceImpl.class);
 
 	@Value("${litty.url}")
 	private String littyUrl;
@@ -47,11 +43,11 @@ public class MockUiServiceImpl implements MockUiService {
 
 	@Override
 	public void sendMockCommandRequest(String command, Integer nooftimes) {
-		log.debug("Command Received {} to execute, will be executed {} times", command, nooftimes);
+		System.out.println("Command Received "+ command+" to execute, will be executed "+nooftimes+" times");
 		
 		for(int i=0; i<nooftimes; i++){
 			String strRequest = this.getRequest(command);
-			log.info("Sending request with body as {}", strRequest);
+			System.out.println("Sending request with body as "+ strRequest);
 			try {
 				this.sendRequest(strRequest);
 			} catch (UnsupportedEncodingException e) {
@@ -67,13 +63,13 @@ public class MockUiServiceImpl implements MockUiService {
 	private void sendRequest(String requestPayload) throws UnsupportedEncodingException{
 		
 		if(littyUrl == null){
-			log.info("Litty url is no defined {} ");
+			System.out.println("Litty url is no defined {} ");
 		}
 		MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
 		//map.add("initial","true");
 		//map.add("data",requestPayload);
 		
-		String finalUrl = littyUrl +"?inital=true&data="+URLEncoder.encode(requestPayload, "UTF-8");
+		String finalUrl = littyUrl +"?initial=true&data="+URLEncoder.encode(requestPayload, "UTF-8");
 		System.out.println("FINAL URL "+finalUrl);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -83,7 +79,7 @@ public class MockUiServiceImpl implements MockUiService {
 		
 		ResponseEntity<Object> response = restTemplate.exchange(finalUrl, HttpMethod.POST, entity, Object.class);
 		
-		log.info("Response body {} ",response.getBody());
+		System.out.println("Response body "+response.getBody());
 		
 	}
 	
@@ -94,7 +90,7 @@ public class MockUiServiceImpl implements MockUiService {
 		String line;
 
 		if (fileLocation == null) {
-			log.error("File lcoation is not defined {} ", fileLocation);
+			System.out.println("File lcoation is not defined "+ fileLocation);
 		}
 
 		try {
