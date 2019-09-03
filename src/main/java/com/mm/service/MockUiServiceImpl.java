@@ -3,6 +3,9 @@ package com.mm.service;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,29 +52,36 @@ public class MockUiServiceImpl implements MockUiService {
 		for(int i=0; i<nooftimes; i++){
 			String strRequest = this.getRequest(command);
 			log.info("Sending request with body as {}", strRequest);
-			this.sendRequest(strRequest);
+			try {
+				this.sendRequest(strRequest);
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 		}
 		
 
 	}
 	
-	private void sendRequest(String requestPayload){
+	private void sendRequest(String requestPayload) throws UnsupportedEncodingException{
 		
 		if(littyUrl == null){
 			log.info("Litty url is no defined {} ");
 		}
 		MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
-		map.add("initial","true");
-		map.add("data",requestPayload);
+		//map.add("initial","true");
+		//map.add("data",requestPayload);
 		
+		String finalUrl = littyUrl +"?inital=true&data="+URLEncoder.encode(requestPayload, "UTF-8");
+		System.out.println("FINAL URL "+finalUrl);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		
 		HttpEntity<MultiValueMap<String, String>> entity =
 			    new HttpEntity<MultiValueMap<String, String>>(map, headers);
 		
-		ResponseEntity<Object> response = restTemplate.exchange(littyUrl, HttpMethod.POST, entity, Object.class);
+		ResponseEntity<Object> response = restTemplate.exchange(finalUrl, HttpMethod.POST, entity, Object.class);
 		
 		log.info("Response body {} ",response.getBody());
 		
