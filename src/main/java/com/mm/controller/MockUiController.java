@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mm.service.MockUiService;
 
+import atg.taglib.json.util.JSONArray;
+import atg.taglib.json.util.JSONException;
+import atg.taglib.json.util.JSONObject;
+
 @RestController
 @RequestMapping("/api/mockui")
 public class MockUiController {
@@ -33,9 +38,20 @@ public class MockUiController {
 	private MockUiService mockUiService;
 	
 	@GetMapping(value="/{command}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ResponseBean> mockUiTest(@PathVariable("command") String command) {
-		List<Object> list = mockUiService.sendMockCommandRequest(command);
-		return new ResponseEntity<ResponseBean>(new ResponseBean(true, list), HttpStatus.OK);
+	public ResponseEntity<String> mockUiTest(@PathVariable("command") String command) {
+		
+		JSONObject json = new JSONObject();
+		JSONArray array = mockUiService.sendMockCommandRequest(command);
+		
+		try {
+			json.put("success", true);
+			json.put("data", array);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
 	}
 	
 	@GetMapping("/{command}/{nooftimes}")

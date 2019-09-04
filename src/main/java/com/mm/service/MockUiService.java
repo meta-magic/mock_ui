@@ -1,10 +1,10 @@
 package com.mm.service;
 
-import java.util.List;
+import atg.taglib.json.util.JSONArray;
 
 public interface MockUiService {
 
-	public List<Object> sendMockCommandRequest(String command);
+	public JSONArray sendMockCommandRequest(String command);
 	
-	public List<Object> sendMockCommandRequest(String command, Integer nooftimes);
+	public JSONArray sendMockCommandRequest(String command, Integer nooftimes);
 }

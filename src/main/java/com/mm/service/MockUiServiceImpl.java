@@ -6,8 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +22,7 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import atg.taglib.json.util.JSONArray;
 import atg.taglib.json.util.JSONException;
 import atg.taglib.json.util.JSONObject;
 
@@ -41,25 +40,28 @@ public class MockUiServiceImpl implements MockUiService {
 	private RestTemplate restTemplate;
 
 	@Override
-	public List<Object> sendMockCommandRequest(String command) {
+	public JSONArray sendMockCommandRequest(String command) {
+		
 		return this.sendMockCommandRequest(command, 1);
 	}
 
 	@Override
-	public List<Object> sendMockCommandRequest(String command, Integer nooftimes) {
+	public JSONArray sendMockCommandRequest(String command, Integer nooftimes) {
+		System.out.println();
 		command = command.toLowerCase();
 		System.out.println("Command Received " + command + " to execute, will be executed " + nooftimes + " times");
-		List<Object> allresponse = new ArrayList<Object>();
+		JSONArray allresponse = new JSONArray();
 		for (int i = 0; i < nooftimes; i++) {
-			List list = this.sendRequest(command, 1);
+			JSONArray list = this.sendRequest(command, 1);
 			allresponse.addAll(list);
 		}
 		
+		System.out.println();
 		return allresponse;
 
 	}
 
-	private List<Object> sendRequest(String command, Integer seq) {
+	private JSONArray sendRequest(String command, Integer seq) {
 
 		String strRequest = this.getRequest(command + "_" + 1);
 		System.out.println("Sending request with body as " + strRequest);
@@ -69,40 +71,41 @@ public class MockUiServiceImpl implements MockUiService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return new ArrayList<>();
+		return new JSONArray();
 	}
 
-	private List<Object> sendRequest(String requestPayload) throws UnsupportedEncodingException {
+	private JSONArray sendRequest(String requestPayload) throws UnsupportedEncodingException {
 
 		if (littyUrl == null) {
 			System.out.println("Litty url is no defined {} ");
 		}
-		List<Object> allresponse = new ArrayList<Object>();
+		JSONArray allresponse = new JSONArray();
 		
 		MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
 		// map.add("initial","true");
 		// map.add("data",requestPayload);
 
 		String finalUrl = littyUrl + "?initial=true&data=" + URLEncoder.encode(requestPayload, "UTF-8");
-		System.out.println("FINAL URL " + finalUrl);
+		System.out.println("Encoded URL " + finalUrl);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
 		HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<MultiValueMap<String, String>>(map, headers);
 
 		ResponseEntity<String> response = restTemplate.exchange(finalUrl, HttpMethod.POST, entity, String.class);
-		allresponse.add(response.getBody());
-		System.out.println("Response body " + response.getBody());
-		System.out.println("CHECKING for multipleRequest");
+		
+		System.out.println("Response Received " + response.getBody());
 		try {
-			System.out.println("JSON converted "+new JSONObject(response.getBody()));
+			allresponse.add(new JSONObject(response.getBody()));
 		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		System.out.println();
+		System.out.println("CHECKING for multipleRequest based on response received");
+		 
 		try {
 			com.mm.service.ResponseBean responseBean = new ObjectMapper().readValue(response.getBody(), com.mm.service.ResponseBean.class);
-			List<Object> otherResponse = this.multipleRequest(responseBean);
+			JSONArray otherResponse = this.multipleRequest(responseBean);
 			allresponse.addAll(otherResponse);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -113,11 +116,11 @@ public class MockUiServiceImpl implements MockUiService {
 		
 	}
 
-	private List<Object> multipleRequest(com.mm.service.ResponseBean body) {
+	private JSONArray multipleRequest(com.mm.service.ResponseBean body) {
 		
 		try {
 			
-			System.out.println("Response Body is "+new ObjectMapper().writeValueAsString(body));
+			System.out.println("Response OBJECT is "+new ObjectMapper().writeValueAsString(body));
 			if (body.getData()!=null && body.getData().getResponseMetaData()!=null) {
 				ResponseMetaData responseMetaData = body.getData().getResponseMetaData();
 				boolean completed = responseMetaData.isCompleted();
@@ -136,7 +139,7 @@ public class MockUiServiceImpl implements MockUiService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new ArrayList<>();
+		return new JSONArray();
 	}
 
 	private String getRequest(String command) {
@@ -149,7 +152,7 @@ public class MockUiServiceImpl implements MockUiService {
 
 		try {
 			String fileName = fileLocation + File.separator + command + ".json";
-			System.out.println("Reading file "+fileName);
+			System.out.println("Reading request from file "+fileName);
 			BufferedReader br = new BufferedReader(new FileReader(new File(fileName)));
 
 			while ((line = br.readLine()) != null) {
