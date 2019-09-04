@@ -90,7 +90,8 @@ public class MockUiServiceImpl implements MockUiService {
 		System.out.println("Encoded URL " + finalUrl);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
+		headers.setConnection("Upgrade");
+		headers.setUpgrade("HTTP/2.0");
 		HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<MultiValueMap<String, String>>(map, headers);
 
 		ResponseEntity<String> response = restTemplate.exchange(finalUrl, HttpMethod.POST, entity, String.class);
