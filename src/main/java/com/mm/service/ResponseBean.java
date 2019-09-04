@@ -1,13 +1,19 @@
 package com.mm.service;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ResponseBean {
-	private Data Data;
+	
+	@JsonProperty(value = "Data")
+	private Data data;
 
 	public Data getData() {
-		return Data;
+		return data;
 	}
 
 	public void setData(Data data) {
-		Data = data;
+		this.data = data;
 	}
+ 
+	
 }

@@ -1,19 +1,33 @@
 package com.mm.service;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ResponseMetaData {
 
-	private String Command, requestId,responseTime;
+	@JsonProperty(value = "Command")
+	private String command;
+	@JsonProperty(value = "requestId")
+	private String requestId;
+	@JsonProperty(value = "responseTime")
+	private String responseTime;
+	@JsonProperty(value = "commandSeqId")
+	private Integer commandSeqId;
+	@JsonProperty(value = "totalResponsesAvailable")
+	private Integer totalResponsesAvailable;
+	@JsonProperty(value = "responseSequenceId")
+	private Integer responseSequenceId;
+	@JsonProperty(value = "responseSanitizationRequired")
+	private boolean responseSanitizationRequired;
 	
-	private Integer commandSeqId, totalResponsesAvailable, responseSequenceId;
-	
-	private boolean responseSanitizationRequired, completed;
+	@JsonProperty(value = "completed")
+	private boolean completed;
 
 	public String getCommand() {
-		return Command;
+		return command;
 	}
 
 	public void setCommand(String command) {
-		Command = command;
+		this.command = command;
 	}
 
 	public String getRequestId() {
@@ -71,4 +85,5 @@ public class ResponseMetaData {
 	public void setCompleted(boolean completed) {
 		this.completed = completed;
 	}
+ 
 }

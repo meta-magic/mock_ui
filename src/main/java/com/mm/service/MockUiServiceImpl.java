@@ -3,6 +3,7 @@ package com.mm.service;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -21,7 +22,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.annotation.RequestScope;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import atg.taglib.json.util.JSONException;
@@ -90,17 +90,30 @@ public class MockUiServiceImpl implements MockUiService {
 
 		HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<MultiValueMap<String, String>>(map, headers);
 
-		ResponseEntity<ResponseBean> response = restTemplate.exchange(finalUrl, HttpMethod.POST, entity, ResponseBean.class);
+		ResponseEntity<String> response = restTemplate.exchange(finalUrl, HttpMethod.POST, entity, String.class);
 		allresponse.add(response.getBody());
 		System.out.println("Response body " + response.getBody());
 		System.out.println("CHECKING for multipleRequest");
-		List<Object> otherResponse = this.multipleRequest(response.getBody());
-		allresponse.addAll(otherResponse);
+		try {
+			System.out.println("JSON converted "+new JSONObject(response.getBody()));
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			com.mm.service.ResponseBean responseBean = new ObjectMapper().readValue(response.getBody(), com.mm.service.ResponseBean.class);
+			List<Object> otherResponse = this.multipleRequest(responseBean);
+			allresponse.addAll(otherResponse);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return allresponse;
 		
 	}
 
-	private List<Object> multipleRequest(ResponseBean body) {
+	private List<Object> multipleRequest(com.mm.service.ResponseBean body) {
 		
 		try {
 			

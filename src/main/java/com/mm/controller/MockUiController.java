@@ -1,9 +1,15 @@
 package com.mm.controller;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +26,8 @@ import com.mm.service.MockUiService;
 @RequestMapping("/api/mockui")
 public class MockUiController {
 
+	@Value("${response.location}")
+	private String responseLocation;
 	
 	@Autowired
 	private MockUiService mockUiService;
@@ -36,13 +44,27 @@ public class MockUiController {
 	}
 	
 	@PostMapping(value="/dummylitty", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public  ResponseEntity<ResponseBean> dummyLitty(@RequestParam Map<String, String> requestParam){
+	public  ResponseEntity<String> dummyLitty(@RequestParam Map<String, String> requestParam){
 		
 		
 		System.out.println("Initial "+ requestParam.get("initial")+" and Data  "+requestParam.get("data"));
 		
+		StringBuilder sb = new StringBuilder();
 		
-		return new ResponseEntity<ResponseBean>(new ResponseBean(true, requestParam.get("data")), HttpStatus.OK);
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(new File(responseLocation+File.separator+"mnrsearch_1.json")));
+			String line = null;
+			while((line = br.readLine())!=null){
+				sb.append(line);
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return new ResponseEntity<String>(sb.toString(), HttpStatus.OK);
 	}
 
 }

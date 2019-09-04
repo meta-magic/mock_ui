@@ -1,34 +1,42 @@
 package com.mm.service;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Data {
 	
-	private ResponseMetaData ResponseMetaData;
+	@JsonProperty(value = "ResponseMetaData")
+	private ResponseMetaData responseMetaData;
 	
-	private Object ResponseData;
+	@JsonProperty(value = "ResponseData")
+	private Object responseData;
 	
-	private Object ResponseStatus;
+	@JsonProperty(value = "ResponseStatus")
+	private Object responseStatus;
 
 	public ResponseMetaData getResponseMetaData() {
-		return ResponseMetaData;
+		return responseMetaData;
 	}
 
 	public void setResponseMetaData(ResponseMetaData responseMetaData) {
-		ResponseMetaData = responseMetaData;
+		this.responseMetaData = responseMetaData;
 	}
 
 	public Object getResponseData() {
-		return ResponseData;
+		return responseData;
 	}
 
 	public void setResponseData(Object responseData) {
-		ResponseData = responseData;
+		this.responseData = responseData;
 	}
 
 	public Object getResponseStatus() {
-		return ResponseStatus;
+		return responseStatus;
 	}
 
 	public void setResponseStatus(Object responseStatus) {
-		ResponseStatus = responseStatus;
+		this.responseStatus = responseStatus;
 	}
+	
+	
+ 
 }
