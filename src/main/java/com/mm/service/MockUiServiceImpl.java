@@ -131,6 +131,7 @@ public class MockUiServiceImpl implements MockUiService {
 
 		try {
 			String fileName = fileLocation + File.separator + command + ".json";
+			System.out.println("Reading file "+fileName);
 			BufferedReader br = new BufferedReader(new FileReader(new File(fileName)));
 
 			while ((line = br.readLine()) != null) {
