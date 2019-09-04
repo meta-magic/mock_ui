@@ -101,15 +101,17 @@ public class MockUiServiceImpl implements MockUiService {
 		
 		try {
 			JSONObject json = new JSONObject(body);
+			System.out.println("Response Body is "+json);
 			if (json.has("Data") && json.getJSONObject("Data").has("ResponseMetaData")) {
 				JSONObject responseMetaData = json.getJSONObject("Data").getJSONObject("ResponseMetaData");
 				String completed = responseMetaData.getString("completed");
+				System.out.println("Completed flag "+completed);
 				if (completed != null && completed.equals("false")) {
 					if (responseMetaData.has("commandSeqId") && responseMetaData.has("totalResponsesAvailable")
 							&& responseMetaData.has("Command")) {
 						Integer commandSeqId = Integer.valueOf(responseMetaData.getString("commandSeqId"));
 						String command = responseMetaData.getString("Command");
-
+						System.out.println("Command  "+command +" commandSeqId "+commandSeqId);
 						commandSeqId++;
 						return this.sendRequest(command, commandSeqId);
 					}
