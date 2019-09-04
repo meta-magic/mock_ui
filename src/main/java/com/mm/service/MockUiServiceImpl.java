@@ -63,7 +63,7 @@ public class MockUiServiceImpl implements MockUiService {
 
 	private JSONArray sendRequest(String command, Integer seq) {
 
-		String strRequest = this.getRequest(command + "_" + 1);
+		String strRequest = this.getRequest(command + "_" + seq);
 		System.out.println("Sending request with body as " + strRequest);
 		try {
 			return this.sendRequest(strRequest);
