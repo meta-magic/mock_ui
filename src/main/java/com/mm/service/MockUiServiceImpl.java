@@ -21,6 +21,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.annotation.RequestScope;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import atg.taglib.json.util.JSONException;
 import atg.taglib.json.util.JSONObject;
 
@@ -87,37 +90,37 @@ public class MockUiServiceImpl implements MockUiService {
 
 		HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<MultiValueMap<String, String>>(map, headers);
 
-		ResponseEntity<Object> response = restTemplate.exchange(finalUrl, HttpMethod.POST, entity, Object.class);
+		ResponseEntity<ResponseBean> response = restTemplate.exchange(finalUrl, HttpMethod.POST, entity, ResponseBean.class);
 		allresponse.add(response.getBody());
 		System.out.println("Response body " + response.getBody());
 		System.out.println("CHECKING for multipleRequest");
-		List<Object> otherResponse = this.multipleRequest(response.getBody().toString());
+		List<Object> otherResponse = this.multipleRequest(response.getBody());
 		allresponse.addAll(otherResponse);
 		return allresponse;
 		
 	}
 
-	private List<Object> multipleRequest(String body) {
+	private List<Object> multipleRequest(ResponseBean body) {
 		
 		try {
-			JSONObject json = new JSONObject(body);
-			System.out.println("Response Body is "+json);
-			if (json.has("Data") && json.getJSONObject("Data").has("ResponseMetaData")) {
-				JSONObject responseMetaData = json.getJSONObject("Data").getJSONObject("ResponseMetaData");
-				String completed = responseMetaData.getString("completed");
+			
+			System.out.println("Response Body is "+new ObjectMapper().writeValueAsString(body));
+			if (body.getData()!=null && body.getData().getResponseMetaData()!=null) {
+				ResponseMetaData responseMetaData = body.getData().getResponseMetaData();
+				boolean completed = responseMetaData.isCompleted();
 				System.out.println("Completed flag "+completed);
-				if (completed != null && completed.equals("false")) {
-					if (responseMetaData.has("commandSeqId") && responseMetaData.has("totalResponsesAvailable")
-							&& responseMetaData.has("Command")) {
-						Integer commandSeqId = Integer.valueOf(responseMetaData.getString("commandSeqId"));
-						String command = responseMetaData.getString("Command");
+				if (!completed) {
+					if (responseMetaData.getCommandSeqId()!=null && responseMetaData.getTotalResponsesAvailable()!=null
+							&& responseMetaData.getCommand()!=null) {
+						Integer commandSeqId = responseMetaData.getCommandSeqId();
+						String command = responseMetaData.getCommand();
 						System.out.println("Command  "+command +" commandSeqId "+commandSeqId);
 						commandSeqId++;
 						return this.sendRequest(command, commandSeqId);
 					}
 				}
 			}
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return new ArrayList<>();
