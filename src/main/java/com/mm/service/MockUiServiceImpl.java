@@ -41,8 +41,9 @@ public class MockUiServiceImpl implements MockUiService {
 
 	@Override
 	public JSONArray sendMockCommandRequest(String command) {
-		
-		return this.sendMockCommandRequest(command, 1);
+		JSONArray allresponse = new JSONArray();
+		this.sendRequest(command, 1,allresponse);
+		return allresponse;
 	}
 
 	@Override
@@ -52,34 +53,34 @@ public class MockUiServiceImpl implements MockUiService {
 		System.out.println("Command Received " + command + " to execute, will be executed " + nooftimes + " times");
 		JSONArray allresponse = new JSONArray();
 		for (int i = 0; i < nooftimes; i++) {
-			JSONArray list = this.sendRequest(command, 1);
-			allresponse.addAll(list);
+			this.sendRequest(command, 1,allresponse);
 		}
 		
 		System.out.println();
+		
 		return allresponse;
 
 	}
 
-	private JSONArray sendRequest(String command, Integer seq) {
+	private void sendRequest(String command, Integer seq, JSONArray allresponse) {
 
 		String strRequest = this.getRequest(command + "_" + seq);
 		System.out.println("Sending request with body as " + strRequest);
 		try {
-			return this.sendRequest(strRequest);
+			this.sendRequest(strRequest, allresponse);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return new JSONArray();
+		
 	}
 
-	private JSONArray sendRequest(String requestPayload) throws UnsupportedEncodingException {
+	private JSONArray sendRequest(String requestPayload, JSONArray allresponse) throws UnsupportedEncodingException {
 
 		if (littyUrl == null) {
 			System.out.println("Litty url is no defined {} ");
 		}
-		JSONArray allresponse = new JSONArray();
+		
 		
 		MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
 		// map.add("initial","true");
@@ -96,6 +97,7 @@ public class MockUiServiceImpl implements MockUiService {
 		
 		System.out.println("Response Received " + response.getBody());
 		try {
+			
 			allresponse.add(new JSONObject(response.getBody()));
 		} catch (JSONException e1) {
 			e1.printStackTrace();
@@ -105,8 +107,8 @@ public class MockUiServiceImpl implements MockUiService {
 		 
 		try {
 			com.mm.service.ResponseBean responseBean = new ObjectMapper().readValue(response.getBody(), com.mm.service.ResponseBean.class);
-			JSONArray otherResponse = this.multipleRequest(responseBean);
-			allresponse.addAll(otherResponse);
+			this.multipleRequest(responseBean, allresponse);
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -116,7 +118,7 @@ public class MockUiServiceImpl implements MockUiService {
 		
 	}
 
-	private JSONArray multipleRequest(com.mm.service.ResponseBean body) {
+	private void multipleRequest(com.mm.service.ResponseBean body, JSONArray allresponse) {
 		
 		try {
 			
@@ -128,18 +130,19 @@ public class MockUiServiceImpl implements MockUiService {
 				if (!completed) {
 					if (responseMetaData.getCommandSeqId()!=null && responseMetaData.getTotalResponsesAvailable()!=null
 							&& responseMetaData.getCommand()!=null) {
-						Integer commandSeqId = responseMetaData.getCommandSeqId();
+						Integer commandSeqId = responseMetaData.getResponseSequenceId();
 						String command = responseMetaData.getCommand();
 						System.out.println("Command  "+command +" commandSeqId "+commandSeqId);
 						commandSeqId++;
-						return this.sendRequest(command, commandSeqId);
+						Thread.sleep(2000);
+						this.sendRequest(command, commandSeqId, allresponse);
 					}
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new JSONArray();
+
 	}
 
 	private String getRequest(String command) {
