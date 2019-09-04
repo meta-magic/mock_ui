@@ -1,9 +1,8 @@
 package com.mm.controller;
 
+import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,9 +24,10 @@ public class MockUiController {
 	@Autowired
 	private MockUiService mockUiService;
 	
-	@GetMapping("/{command}")
-	public void mockUiTest(@PathVariable("command") String command) {
-		mockUiService.sendMockCommandRequest(command);
+	@GetMapping(value="/{command}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ResponseBean> mockUiTest(@PathVariable("command") String command) {
+		List<Object> list = mockUiService.sendMockCommandRequest(command);
+		return new ResponseEntity<ResponseBean>(new ResponseBean(true, list), HttpStatus.OK);
 	}
 	
 	@GetMapping("/{command}/{nooftimes}")

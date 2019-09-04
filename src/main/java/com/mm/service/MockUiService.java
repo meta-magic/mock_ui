@@ -1,8 +1,10 @@
 package com.mm.service;
 
+import java.util.List;
+
 public interface MockUiService {
 
-	public void sendMockCommandRequest(String command);
+	public List<Object> sendMockCommandRequest(String command);
 	
-	public void sendMockCommandRequest(String command, Integer nooftimes);
+	public List<Object> sendMockCommandRequest(String command, Integer nooftimes);
 }
