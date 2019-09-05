@@ -42,7 +42,7 @@ public class MockUiServiceImpl implements MockUiService {
 	@Override
 	public JSONArray sendMockCommandRequest(String command) {
 		JSONArray allresponse = new JSONArray();
-		this.sendRequest(command, 1,allresponse);
+		this.sendRequest(true, command, 1,allresponse);
 		return allresponse;
 	}
 
@@ -53,7 +53,7 @@ public class MockUiServiceImpl implements MockUiService {
 		System.out.println("Command Received " + command + " to execute, will be executed " + nooftimes + " times");
 		JSONArray allresponse = new JSONArray();
 		for (int i = 0; i < nooftimes; i++) {
-			this.sendRequest(command, 1,allresponse);
+			this.sendRequest(true,command, 1,allresponse);
 		}
 		
 		System.out.println();
@@ -62,12 +62,12 @@ public class MockUiServiceImpl implements MockUiService {
 
 	}
 
-	private void sendRequest(String command, Integer seq, JSONArray allresponse) {
+	private void sendRequest(boolean initial, String command, Integer seq, JSONArray allresponse) {
 
 		String strRequest = this.getRequest(command + "_" + seq);
 		System.out.println("Sending request with body as " + strRequest);
 		try {
-			this.sendRequest(strRequest, allresponse);
+			this.sendRequest(initial, strRequest, allresponse);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -75,7 +75,7 @@ public class MockUiServiceImpl implements MockUiService {
 		
 	}
 
-	private JSONArray sendRequest(String requestPayload, JSONArray allresponse) throws UnsupportedEncodingException {
+	private JSONArray sendRequest(boolean initial, String requestPayload, JSONArray allresponse) throws UnsupportedEncodingException {
 
 		if (littyUrl == null) {
 			System.out.println("Litty url is no defined {} ");
@@ -86,7 +86,7 @@ public class MockUiServiceImpl implements MockUiService {
 		// map.add("initial","true");
 		// map.add("data",requestPayload);
 
-		String finalUrl = littyUrl + "?initial=true&data=" + URLEncoder.encode(requestPayload, "UTF-8");
+		String finalUrl = littyUrl + "?initial="+initial+"&data=" + URLEncoder.encode(requestPayload, "UTF-8");
 		System.out.println("Encoded URL " + finalUrl);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -136,7 +136,7 @@ public class MockUiServiceImpl implements MockUiService {
 						System.out.println("Command  "+command +" commandSeqId "+commandSeqId);
 						commandSeqId++;
 						Thread.sleep(2000);
-						this.sendRequest(command, commandSeqId, allresponse);
+						this.sendRequest(false, command, commandSeqId, allresponse);
 					}
 				}
 			}
